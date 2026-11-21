@@ -1,0 +1,241 @@
+// use prisma-8
+
+enum WorkspaceRole {
+  @@type("pg/text@1")
+  OWNER  = "OWNER"
+  ADMIN  = "ADMIN"
+  MEMBER = "MEMBER"
+}
+
+enum ActivityAction {
+  @@type("pg/text@1")
+  BOOKMARK_CREATED     = "BOOKMARK_CREATED"
+  BOOKMARK_UPDATED     = "BOOKMARK_UPDATED"
+  BOOKMARK_DELETED     = "BOOKMARK_DELETED"
+  BOOKMARK_FAVORITED   = "BOOKMARK_FAVORITED"
+  BOOKMARK_UNFAVORITED = "BOOKMARK_UNFAVORITED"
+  BOOKMARK_ARCHIVED    = "BOOKMARK_ARCHIVED"
+  COLLECTION_CREATED   = "COLLECTION_CREATED"
+  COLLECTION_UPDATED   = "COLLECTION_UPDATED"
+  COLLECTION_DELETED   = "COLLECTION_DELETED"
+  NOTE_CREATED         = "NOTE_CREATED"
+  NOTE_UPDATED         = "NOTE_UPDATED"
+  NOTE_DELETED         = "NOTE_DELETED"
+  TAG_CREATED          = "TAG_CREATED"
+  TAG_DELETED          = "TAG_DELETED"
+  MEMBER_INVITED       = "MEMBER_INVITED"
+  MEMBER_REMOVED       = "MEMBER_REMOVED"
+  ROLE_UPDATED         = "ROLE_UPDATED"
+}
+
+enum ActivityEntityType {
+  @@type("pg/text@1")
+  BOOKMARK   = "BOOKMARK"
+  COLLECTION = "COLLECTION"
+  NOTE       = "NOTE"
+  TAG        = "TAG"
+  WORKSPACE  = "WORKSPACE"
+  MEMBER     = "MEMBER"
+}
+
+model User {
+  id                   Uuid                  @id @onCreate(uuid(7))
+  firebaseUid          String                @unique
+  email                String                @unique
+  displayName          String?
+  photoUrl             String?
+  createdAt            DateTime              @default(now()) @onCreate(now())
+  updatedAt            DateTime              @default(now()) @onCreate(now()) @onUpdate(now())
+
+  ownedWorkspaces      Workspace[]           @relation("WorkspaceOwner")
+  memberships          WorkspaceMember[]
+  activities           Activity[]
+  extensionCredentials ExtensionCredential[]
+}
+
+model Workspace {
+  id                   Uuid                  @id @onCreate(uuid(7))
+  name                 String
+  slug                 String                @unique
+  isPersonal           Boolean               @default(true)
+  ownerId              Uuid
+  owner                User                  @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  createdAt            DateTime              @default(now()) @onCreate(now())
+  updatedAt            DateTime              @default(now()) @onCreate(now()) @onUpdate(now())
+
+  members              WorkspaceMember[]
+  collections          Collection[]
+  bookmarks            Bookmark[]
+  tags                 Tag[]
+  notes                Note[]
+  activities           Activity[]
+  extensionCredentials ExtensionCredential[]
+
+  @@index([ownerId])
+  @@index([createdAt])
+}
+
+model WorkspaceMember {
+  id          Uuid          @id @onCreate(uuid(7))
+  workspaceId Uuid
+  userId      Uuid
+  role        WorkspaceRole @default(MEMBER)
+  createdAt   DateTime      @default(now()) @onCreate(now())
+  updatedAt   DateTime      @default(now()) @onCreate(now()) @onUpdate(now())
+
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+  @@index([workspaceId, role])
+}
+
+model Collection {
+  id          Uuid       @id @onCreate(uuid(7))
+  workspaceId Uuid
+  name        String
+  description String?
+  icon        String?
+  color       String?
+  createdAt   DateTime   @default(now()) @onCreate(now())
+  updatedAt   DateTime   @default(now()) @onCreate(now()) @onUpdate(now())
+
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  bookmarks   Bookmark[]
+
+  @@unique([workspaceId, name])
+  @@unique([id, workspaceId])
+  @@index([workspaceId, createdAt])
+  @@fullTextIndex([name], name: "collection_name_search")
+}
+
+model Bookmark {
+  id            Uuid           @id @onCreate(uuid(7))
+  workspaceId   Uuid
+  collectionId  Uuid?
+  url           String
+  normalizedUrl String
+  title         String
+  description   String?
+  favicon       String?
+  domain        String
+  userNotes     String?
+  isFavorite    Boolean        @default(false)
+  isArchived    Boolean        @default(false)
+  createdAt     DateTime       @default(now()) @onCreate(now())
+  updatedAt     DateTime       @default(now()) @onCreate(now()) @onUpdate(now())
+
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  collection    Collection?    @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  tags          BookmarkTag[]
+  notes         BookmarkNote[]
+
+  @@unique([workspaceId, normalizedUrl])
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, collectionId])
+  @@index([workspaceId, isFavorite, createdAt])
+  @@index([workspaceId, isArchived, createdAt])
+  @@index([workspaceId, domain])
+  @@fullTextIndex([[title, domain], [description, userNotes]], name: "bookmark_search")
+}
+
+model Tag {
+  id             Uuid          @id @onCreate(uuid(7))
+  workspaceId    Uuid
+  name           String
+  normalizedName String
+  createdAt      DateTime      @default(now()) @onCreate(now())
+  updatedAt      DateTime      @default(now()) @onCreate(now()) @onUpdate(now())
+
+  workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  bookmarks      BookmarkTag[]
+
+  @@unique([workspaceId, normalizedName])
+  @@index([workspaceId, name])
+  @@fullTextIndex([name], name: "tag_name_search")
+}
+
+model BookmarkTag {
+  id         Uuid     @id @onCreate(uuid(7))
+  bookmarkId Uuid
+  tagId      Uuid
+  createdAt  DateTime @default(now()) @onCreate(now())
+
+  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([bookmarkId, tagId])
+  @@index([tagId])
+  @@index([bookmarkId])
+}
+
+model Note {
+  id          Uuid           @id @onCreate(uuid(7))
+  workspaceId Uuid
+  title       String
+  content     String
+  isPinned    Boolean        @default(false)
+  isArchived  Boolean        @default(false)
+  createdAt   DateTime       @default(now()) @onCreate(now())
+  updatedAt   DateTime       @default(now()) @onCreate(now()) @onUpdate(now())
+
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  bookmarks   BookmarkNote[]
+
+  @@index([workspaceId, updatedAt])
+  @@index([workspaceId, isPinned, updatedAt])
+  @@fullTextIndex([[title], content], name: "note_search")
+}
+
+model BookmarkNote {
+  id         Uuid     @id @onCreate(uuid(7))
+  bookmarkId Uuid
+  noteId     Uuid
+  createdAt  DateTime @default(now()) @onCreate(now())
+
+  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  note       Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@unique([bookmarkId, noteId])
+  @@index([noteId])
+  @@index([bookmarkId])
+}
+
+model Activity {
+  id          Uuid               @id @onCreate(uuid(7))
+  workspaceId Uuid
+  actorId     Uuid
+  action      ActivityAction
+  entityType  ActivityEntityType
+  entityId    Uuid
+  metadata    Json?
+  createdAt   DateTime           @default(now()) @onCreate(now())
+
+  workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  actor       User               @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId, createdAt])
+  @@index([actorId, createdAt])
+  @@index([workspaceId, entityType, entityId])
+}
+
+model ExtensionCredential {
+  id          Uuid      @id @onCreate(uuid(7))
+  workspaceId Uuid
+  userId      Uuid
+  name        String
+  tokenHash   String    @unique
+  tokenPrefix String
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now()) @onCreate(now())
+  updatedAt   DateTime  @default(now()) @onCreate(now()) @onUpdate(now())
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, userId])
+  @@index([userId, revokedAt])
+}

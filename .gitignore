@@ -39,3 +39,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+node_modules/
+dist/
+.env
+
+# AI agent & IDE skill directories
+.agents/
+.claude/
+.cursor/
+.devin/
+
+# Turbopack and local cache
+.turbo
+*.local
+
+# System files
+Thumbs.db
+desktop.ini
+
+

@@ -1,0 +1,3642 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.Activity",
+    "label": "Create table \"Activity\"",
+    "summary": "Creates table \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Activity\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Activity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Activity\"",
+        "sql": "CREATE TABLE \"public\".\"Activity\" (\n  \"action\" text NOT NULL,\n  \"actorId\" uuid NOT NULL,\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"entityId\" uuid NOT NULL,\n  \"entityType\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"metadata\" json,\n  \"workspaceId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Activity_action_check_5f86cb67\" CHECK (\"action\" IN ('BOOKMARK_CREATED', 'BOOKMARK_UPDATED', 'BOOKMARK_DELETED', 'BOOKMARK_FAVORITED', 'BOOKMARK_UNFAVORITED', 'BOOKMARK_ARCHIVED', 'COLLECTION_CREATED', 'COLLECTION_UPDATED', 'COLLECTION_DELETED', 'NOTE_CREATED', 'NOTE_UPDATED', 'NOTE_DELETED', 'TAG_CREATED', 'TAG_DELETED', 'MEMBER_INVITED', 'MEMBER_REMOVED', 'ROLE_UPDATED')),\n  CONSTRAINT \"Activity_entityType_check_e3a3eac4\" CHECK (\"entityType\" IN ('BOOKMARK', 'COLLECTION', 'NOTE', 'TAG', 'WORKSPACE', 'MEMBER'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Activity\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Activity\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Bookmark",
+    "label": "Create table \"Bookmark\"",
+    "summary": "Creates table \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Bookmark\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Bookmark\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Bookmark\"",
+        "sql": "CREATE TABLE \"public\".\"Bookmark\" (\n  \"collectionId\" uuid,\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"domain\" text NOT NULL,\n  \"favicon\" text,\n  \"id\" uuid NOT NULL,\n  \"isArchived\" bool DEFAULT false NOT NULL,\n  \"isFavorite\" bool DEFAULT false NOT NULL,\n  \"normalizedUrl\" text NOT NULL,\n  \"title\" text NOT NULL,\n  \"updatedAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"url\" text NOT NULL,\n  \"userNotes\" text,\n  \"workspaceId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Bookmark\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Bookmark\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.BookmarkNote",
+    "label": "Create table \"BookmarkNote\"",
+    "summary": "Creates table \"BookmarkNote\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "BookmarkNote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"BookmarkNote\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkNote\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"BookmarkNote\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"BookmarkNote\"",
+        "sql": "CREATE TABLE \"public\".\"BookmarkNote\" (\n  \"bookmarkId\" uuid NOT NULL,\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"noteId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"BookmarkNote\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkNote\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"BookmarkNote\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.BookmarkTag",
+    "label": "Create table \"BookmarkTag\"",
+    "summary": "Creates table \"BookmarkTag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "BookmarkTag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"BookmarkTag\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkTag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"BookmarkTag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"BookmarkTag\"",
+        "sql": "CREATE TABLE \"public\".\"BookmarkTag\" (\n  \"bookmarkId\" uuid NOT NULL,\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"tagId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"BookmarkTag\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkTag\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"BookmarkTag\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Collection",
+    "label": "Create table \"Collection\"",
+    "summary": "Creates table \"Collection\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Collection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Collection\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Collection\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Collection\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Collection\"",
+        "sql": "CREATE TABLE \"public\".\"Collection\" (\n  \"color\" text,\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"icon\" text,\n  \"id\" uuid NOT NULL,\n  \"name\" text NOT NULL,\n  \"updatedAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"workspaceId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Collection\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Collection\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Collection\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.ExtensionCredential",
+    "label": "Create table \"ExtensionCredential\"",
+    "summary": "Creates table \"ExtensionCredential\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ExtensionCredential"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ExtensionCredential\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ExtensionCredential\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"ExtensionCredential\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ExtensionCredential\"",
+        "sql": "CREATE TABLE \"public\".\"ExtensionCredential\" (\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"expiresAt\" timestamptz(3),\n  \"id\" uuid NOT NULL,\n  \"lastUsedAt\" timestamptz(3),\n  \"name\" text NOT NULL,\n  \"revokedAt\" timestamptz(3),\n  \"tokenHash\" text NOT NULL,\n  \"tokenPrefix\" text NOT NULL,\n  \"updatedAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"userId\" uuid NOT NULL,\n  \"workspaceId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ExtensionCredential\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"ExtensionCredential\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"ExtensionCredential\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Note",
+    "label": "Create table \"Note\"",
+    "summary": "Creates table \"Note\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Note"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Note\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Note\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Note\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Note\"",
+        "sql": "CREATE TABLE \"public\".\"Note\" (\n  \"content\" text NOT NULL,\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"isArchived\" bool DEFAULT false NOT NULL,\n  \"isPinned\" bool DEFAULT false NOT NULL,\n  \"title\" text NOT NULL,\n  \"updatedAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"workspaceId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Note\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Note\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Note\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Tag",
+    "label": "Create table \"Tag\"",
+    "summary": "Creates table \"Tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Tag\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Tag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Tag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Tag\"",
+        "sql": "CREATE TABLE \"public\".\"Tag\" (\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"name\" text NOT NULL,\n  \"normalizedName\" text NOT NULL,\n  \"updatedAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"workspaceId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Tag\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Tag\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Tag\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.User",
+    "label": "Create table \"User\"",
+    "summary": "Creates table \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"User\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"User\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"User\"",
+        "sql": "CREATE TABLE \"public\".\"User\" (\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"displayName\" text,\n  \"email\" text NOT NULL,\n  \"firebaseUid\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"photoUrl\" text,\n  \"updatedAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"User\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"User\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"User\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Workspace",
+    "label": "Create table \"Workspace\"",
+    "summary": "Creates table \"Workspace\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Workspace"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Workspace\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Workspace\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Workspace\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Workspace\"",
+        "sql": "CREATE TABLE \"public\".\"Workspace\" (\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"isPersonal\" bool DEFAULT true NOT NULL,\n  \"name\" text NOT NULL,\n  \"ownerId\" uuid NOT NULL,\n  \"slug\" text NOT NULL,\n  \"updatedAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Workspace\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Workspace\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Workspace\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.WorkspaceMember",
+    "label": "Create table \"WorkspaceMember\"",
+    "summary": "Creates table \"WorkspaceMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "WorkspaceMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"WorkspaceMember\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkspaceMember\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"WorkspaceMember\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"WorkspaceMember\"",
+        "sql": "CREATE TABLE \"public\".\"WorkspaceMember\" (\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"role\" text DEFAULT 'MEMBER' NOT NULL,\n  \"updatedAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"userId\" uuid NOT NULL,\n  \"workspaceId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"WorkspaceMember_role_check_50a44636\" CHECK (\"role\" IN ('OWNER', 'ADMIN', 'MEMBER'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"WorkspaceMember\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"WorkspaceMember\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"WorkspaceMember\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "unique.Bookmark.Bookmark_workspaceId_normalizedUrl_key",
+    "label": "Add unique constraint on \"Bookmark\" (workspaceId, normalizedUrl)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Bookmark_workspaceId_normalizedUrl_key",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Bookmark_workspaceId_normalizedUrl_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Bookmark_workspaceId_normalizedUrl_key",
+          "public",
+          "\"public\".\"Bookmark\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"Bookmark_workspaceId_normalizedUrl_key\" on \"Bookmark\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Bookmark_workspaceId_normalizedUrl_key\"",
+        "sql": "ALTER TABLE \"public\".\"Bookmark\" ADD CONSTRAINT \"Bookmark_workspaceId_normalizedUrl_key\" UNIQUE (\"workspaceId\", \"normalizedUrl\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"Bookmark_workspaceId_normalizedUrl_key\" exists on (workspaceId, normalizedUrl)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "Bookmark_workspaceId_normalizedUrl_key",
+          "public",
+          "\"public\".\"Bookmark\"",
+          "u",
+          "[\"workspaceId\",\"normalizedUrl\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.BookmarkNote.BookmarkNote_bookmarkId_noteId_key",
+    "label": "Add unique constraint on \"BookmarkNote\" (bookmarkId, noteId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "BookmarkNote_bookmarkId_noteId_key",
+        "table": "BookmarkNote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"BookmarkNote_bookmarkId_noteId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "BookmarkNote_bookmarkId_noteId_key",
+          "public",
+          "\"public\".\"BookmarkNote\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"BookmarkNote_bookmarkId_noteId_key\" on \"BookmarkNote\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"BookmarkNote_bookmarkId_noteId_key\"",
+        "sql": "ALTER TABLE \"public\".\"BookmarkNote\" ADD CONSTRAINT \"BookmarkNote_bookmarkId_noteId_key\" UNIQUE (\"bookmarkId\", \"noteId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"BookmarkNote_bookmarkId_noteId_key\" exists on (bookmarkId, noteId)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "BookmarkNote_bookmarkId_noteId_key",
+          "public",
+          "\"public\".\"BookmarkNote\"",
+          "u",
+          "[\"bookmarkId\",\"noteId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.BookmarkTag.BookmarkTag_bookmarkId_tagId_key",
+    "label": "Add unique constraint on \"BookmarkTag\" (bookmarkId, tagId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "BookmarkTag_bookmarkId_tagId_key",
+        "table": "BookmarkTag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"BookmarkTag_bookmarkId_tagId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "BookmarkTag_bookmarkId_tagId_key",
+          "public",
+          "\"public\".\"BookmarkTag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"BookmarkTag_bookmarkId_tagId_key\" on \"BookmarkTag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"BookmarkTag_bookmarkId_tagId_key\"",
+        "sql": "ALTER TABLE \"public\".\"BookmarkTag\" ADD CONSTRAINT \"BookmarkTag_bookmarkId_tagId_key\" UNIQUE (\"bookmarkId\", \"tagId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"BookmarkTag_bookmarkId_tagId_key\" exists on (bookmarkId, tagId)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "BookmarkTag_bookmarkId_tagId_key",
+          "public",
+          "\"public\".\"BookmarkTag\"",
+          "u",
+          "[\"bookmarkId\",\"tagId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Collection.Collection_workspaceId_name_key",
+    "label": "Add unique constraint on \"Collection\" (workspaceId, name)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Collection_workspaceId_name_key",
+        "table": "Collection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Collection_workspaceId_name_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Collection_workspaceId_name_key",
+          "public",
+          "\"public\".\"Collection\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"Collection_workspaceId_name_key\" on \"Collection\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Collection_workspaceId_name_key\"",
+        "sql": "ALTER TABLE \"public\".\"Collection\" ADD CONSTRAINT \"Collection_workspaceId_name_key\" UNIQUE (\"workspaceId\", \"name\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"Collection_workspaceId_name_key\" exists on (workspaceId, name)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "Collection_workspaceId_name_key",
+          "public",
+          "\"public\".\"Collection\"",
+          "u",
+          "[\"workspaceId\",\"name\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Collection.Collection_id_workspaceId_key",
+    "label": "Add unique constraint on \"Collection\" (id, workspaceId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Collection_id_workspaceId_key",
+        "table": "Collection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Collection_id_workspaceId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Collection_id_workspaceId_key",
+          "public",
+          "\"public\".\"Collection\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"Collection_id_workspaceId_key\" on \"Collection\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Collection_id_workspaceId_key\"",
+        "sql": "ALTER TABLE \"public\".\"Collection\" ADD CONSTRAINT \"Collection_id_workspaceId_key\" UNIQUE (\"id\", \"workspaceId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"Collection_id_workspaceId_key\" exists on (id, workspaceId)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "Collection_id_workspaceId_key",
+          "public",
+          "\"public\".\"Collection\"",
+          "u",
+          "[\"id\",\"workspaceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.ExtensionCredential.ExtensionCredential_tokenHash_key",
+    "label": "Add unique constraint on \"ExtensionCredential\" (tokenHash)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "ExtensionCredential_tokenHash_key",
+        "table": "ExtensionCredential"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ExtensionCredential_tokenHash_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ExtensionCredential_tokenHash_key",
+          "public",
+          "\"public\".\"ExtensionCredential\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ExtensionCredential_tokenHash_key\" on \"ExtensionCredential\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"ExtensionCredential_tokenHash_key\"",
+        "sql": "ALTER TABLE \"public\".\"ExtensionCredential\" ADD CONSTRAINT \"ExtensionCredential_tokenHash_key\" UNIQUE (\"tokenHash\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"ExtensionCredential_tokenHash_key\" exists on (tokenHash)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "ExtensionCredential_tokenHash_key",
+          "public",
+          "\"public\".\"ExtensionCredential\"",
+          "u",
+          "[\"tokenHash\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Tag.Tag_workspaceId_normalizedName_key",
+    "label": "Add unique constraint on \"Tag\" (workspaceId, normalizedName)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Tag_workspaceId_normalizedName_key",
+        "table": "Tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Tag_workspaceId_normalizedName_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Tag_workspaceId_normalizedName_key",
+          "public",
+          "\"public\".\"Tag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"Tag_workspaceId_normalizedName_key\" on \"Tag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Tag_workspaceId_normalizedName_key\"",
+        "sql": "ALTER TABLE \"public\".\"Tag\" ADD CONSTRAINT \"Tag_workspaceId_normalizedName_key\" UNIQUE (\"workspaceId\", \"normalizedName\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"Tag_workspaceId_normalizedName_key\" exists on (workspaceId, normalizedName)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "Tag_workspaceId_normalizedName_key",
+          "public",
+          "\"public\".\"Tag\"",
+          "u",
+          "[\"workspaceId\",\"normalizedName\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.User.User_firebaseUid_key",
+    "label": "Add unique constraint on \"User\" (firebaseUid)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "User_firebaseUid_key",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"User_firebaseUid_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_firebaseUid_key",
+          "public",
+          "\"public\".\"User\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"User_firebaseUid_key\" on \"User\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"User_firebaseUid_key\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD CONSTRAINT \"User_firebaseUid_key\" UNIQUE (\"firebaseUid\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"User_firebaseUid_key\" exists on (firebaseUid)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "User_firebaseUid_key",
+          "public",
+          "\"public\".\"User\"",
+          "u",
+          "[\"firebaseUid\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.User.User_email_key",
+    "label": "Add unique constraint on \"User\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "User_email_key",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"User_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_email_key",
+          "public",
+          "\"public\".\"User\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"User_email_key\" on \"User\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"User_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD CONSTRAINT \"User_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"User_email_key\" exists on (email)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "User_email_key",
+          "public",
+          "\"public\".\"User\"",
+          "u",
+          "[\"email\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Workspace.Workspace_slug_key",
+    "label": "Add unique constraint on \"Workspace\" (slug)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Workspace_slug_key",
+        "table": "Workspace"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Workspace_slug_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Workspace_slug_key",
+          "public",
+          "\"public\".\"Workspace\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"Workspace_slug_key\" on \"Workspace\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Workspace_slug_key\"",
+        "sql": "ALTER TABLE \"public\".\"Workspace\" ADD CONSTRAINT \"Workspace_slug_key\" UNIQUE (\"slug\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"Workspace_slug_key\" exists on (slug)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "Workspace_slug_key",
+          "public",
+          "\"public\".\"Workspace\"",
+          "u",
+          "[\"slug\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.WorkspaceMember.WorkspaceMember_workspaceId_userId_key",
+    "label": "Add unique constraint on \"WorkspaceMember\" (workspaceId, userId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "WorkspaceMember_workspaceId_userId_key",
+        "table": "WorkspaceMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"WorkspaceMember_workspaceId_userId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkspaceMember_workspaceId_userId_key",
+          "public",
+          "\"public\".\"WorkspaceMember\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"WorkspaceMember_workspaceId_userId_key\" on \"WorkspaceMember\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"WorkspaceMember_workspaceId_userId_key\"",
+        "sql": "ALTER TABLE \"public\".\"WorkspaceMember\" ADD CONSTRAINT \"WorkspaceMember_workspaceId_userId_key\" UNIQUE (\"workspaceId\", \"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"WorkspaceMember_workspaceId_userId_key\" exists on (workspaceId, userId)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "WorkspaceMember_workspaceId_userId_key",
+          "public",
+          "\"public\".\"WorkspaceMember\"",
+          "u",
+          "[\"workspaceId\",\"userId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Activity.Activity_actorId_createdAt_idx_0e9f1adf",
+    "label": "Create index \"Activity_actorId_createdAt_idx_0e9f1adf\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Activity_actorId_createdAt_idx_0e9f1adf",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Activity_actorId_createdAt_idx_0e9f1adf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_actorId_createdAt_idx_0e9f1adf\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Activity_actorId_createdAt_idx_0e9f1adf\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Activity_actorId_createdAt_idx_0e9f1adf\"",
+        "sql": "CREATE INDEX \"Activity_actorId_createdAt_idx_0e9f1adf\" ON \"public\".\"Activity\" (\"actorId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Activity_actorId_createdAt_idx_0e9f1adf\" exists on \"Activity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_actorId_createdAt_idx_0e9f1adf\"",
+          "i",
+          "I",
+          "\"public\".\"Activity\"",
+          "btree",
+          "[\"actorId\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Activity.Activity_actorId_idx_a58f6b4b",
+    "label": "Create index \"Activity_actorId_idx_a58f6b4b\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Activity_actorId_idx_a58f6b4b",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Activity_actorId_idx_a58f6b4b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_actorId_idx_a58f6b4b\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Activity_actorId_idx_a58f6b4b\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Activity_actorId_idx_a58f6b4b\"",
+        "sql": "CREATE INDEX \"Activity_actorId_idx_a58f6b4b\" ON \"public\".\"Activity\" (\"actorId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Activity_actorId_idx_a58f6b4b\" exists on \"Activity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_actorId_idx_a58f6b4b\"",
+          "i",
+          "I",
+          "\"public\".\"Activity\"",
+          "btree",
+          "[\"actorId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Activity.Activity_workspaceId_createdAt_idx_5ff7e893",
+    "label": "Create index \"Activity_workspaceId_createdAt_idx_5ff7e893\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Activity_workspaceId_createdAt_idx_5ff7e893",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Activity_workspaceId_createdAt_idx_5ff7e893\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_workspaceId_createdAt_idx_5ff7e893\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Activity_workspaceId_createdAt_idx_5ff7e893\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Activity_workspaceId_createdAt_idx_5ff7e893\"",
+        "sql": "CREATE INDEX \"Activity_workspaceId_createdAt_idx_5ff7e893\" ON \"public\".\"Activity\" (\"workspaceId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Activity_workspaceId_createdAt_idx_5ff7e893\" exists on \"Activity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_workspaceId_createdAt_idx_5ff7e893\"",
+          "i",
+          "I",
+          "\"public\".\"Activity\"",
+          "btree",
+          "[\"workspaceId\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Activity.Activity_workspaceId_entityType_entityId_idx_86ca1627",
+    "label": "Create index \"Activity_workspaceId_entityType_entityId_idx_86ca1627\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Activity_workspaceId_entityType_entityId_idx_86ca1627",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Activity_workspaceId_entityType_entityId_idx_86ca1627\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_workspaceId_entityType_entityId_idx_86ca1627\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Activity_workspaceId_entityType_entityId_idx_86ca1627\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Activity_workspaceId_entityType_entityId_idx_86ca1627\"",
+        "sql": "CREATE INDEX \"Activity_workspaceId_entityType_entityId_idx_86ca1627\" ON \"public\".\"Activity\" (\"workspaceId\", \"entityType\", \"entityId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Activity_workspaceId_entityType_entityId_idx_86ca1627\" exists on \"Activity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_workspaceId_entityType_entityId_idx_86ca1627\"",
+          "i",
+          "I",
+          "\"public\".\"Activity\"",
+          "btree",
+          "[\"workspaceId\",\"entityType\",\"entityId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Activity.Activity_workspaceId_idx_ba65f874",
+    "label": "Create index \"Activity_workspaceId_idx_ba65f874\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Activity_workspaceId_idx_ba65f874",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Activity_workspaceId_idx_ba65f874\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_workspaceId_idx_ba65f874\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Activity_workspaceId_idx_ba65f874\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Activity_workspaceId_idx_ba65f874\"",
+        "sql": "CREATE INDEX \"Activity_workspaceId_idx_ba65f874\" ON \"public\".\"Activity\" (\"workspaceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Activity_workspaceId_idx_ba65f874\" exists on \"Activity\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Activity_workspaceId_idx_ba65f874\"",
+          "i",
+          "I",
+          "\"public\".\"Activity\"",
+          "btree",
+          "[\"workspaceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Bookmark.Bookmark_collectionId_idx_b344fc1a",
+    "label": "Create index \"Bookmark_collectionId_idx_b344fc1a\" on \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Bookmark_collectionId_idx_b344fc1a",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Bookmark_collectionId_idx_b344fc1a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_collectionId_idx_b344fc1a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Bookmark_collectionId_idx_b344fc1a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Bookmark_collectionId_idx_b344fc1a\"",
+        "sql": "CREATE INDEX \"Bookmark_collectionId_idx_b344fc1a\" ON \"public\".\"Bookmark\" (\"collectionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Bookmark_collectionId_idx_b344fc1a\" exists on \"Bookmark\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_collectionId_idx_b344fc1a\"",
+          "i",
+          "I",
+          "\"public\".\"Bookmark\"",
+          "btree",
+          "[\"collectionId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Bookmark.Bookmark_workspaceId_collectionId_idx_17a81e7f",
+    "label": "Create index \"Bookmark_workspaceId_collectionId_idx_17a81e7f\" on \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Bookmark_workspaceId_collectionId_idx_17a81e7f",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Bookmark_workspaceId_collectionId_idx_17a81e7f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_collectionId_idx_17a81e7f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Bookmark_workspaceId_collectionId_idx_17a81e7f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Bookmark_workspaceId_collectionId_idx_17a81e7f\"",
+        "sql": "CREATE INDEX \"Bookmark_workspaceId_collectionId_idx_17a81e7f\" ON \"public\".\"Bookmark\" (\"workspaceId\", \"collectionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Bookmark_workspaceId_collectionId_idx_17a81e7f\" exists on \"Bookmark\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_collectionId_idx_17a81e7f\"",
+          "i",
+          "I",
+          "\"public\".\"Bookmark\"",
+          "btree",
+          "[\"workspaceId\",\"collectionId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Bookmark.Bookmark_workspaceId_createdAt_idx_5ff7e893",
+    "label": "Create index \"Bookmark_workspaceId_createdAt_idx_5ff7e893\" on \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Bookmark_workspaceId_createdAt_idx_5ff7e893",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Bookmark_workspaceId_createdAt_idx_5ff7e893\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_createdAt_idx_5ff7e893\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Bookmark_workspaceId_createdAt_idx_5ff7e893\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Bookmark_workspaceId_createdAt_idx_5ff7e893\"",
+        "sql": "CREATE INDEX \"Bookmark_workspaceId_createdAt_idx_5ff7e893\" ON \"public\".\"Bookmark\" (\"workspaceId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Bookmark_workspaceId_createdAt_idx_5ff7e893\" exists on \"Bookmark\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_createdAt_idx_5ff7e893\"",
+          "i",
+          "I",
+          "\"public\".\"Bookmark\"",
+          "btree",
+          "[\"workspaceId\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Bookmark.Bookmark_workspaceId_domain_idx_9708931d",
+    "label": "Create index \"Bookmark_workspaceId_domain_idx_9708931d\" on \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Bookmark_workspaceId_domain_idx_9708931d",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Bookmark_workspaceId_domain_idx_9708931d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_domain_idx_9708931d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Bookmark_workspaceId_domain_idx_9708931d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Bookmark_workspaceId_domain_idx_9708931d\"",
+        "sql": "CREATE INDEX \"Bookmark_workspaceId_domain_idx_9708931d\" ON \"public\".\"Bookmark\" (\"workspaceId\", \"domain\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Bookmark_workspaceId_domain_idx_9708931d\" exists on \"Bookmark\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_domain_idx_9708931d\"",
+          "i",
+          "I",
+          "\"public\".\"Bookmark\"",
+          "btree",
+          "[\"workspaceId\",\"domain\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Bookmark.Bookmark_workspaceId_idx_ba65f874",
+    "label": "Create index \"Bookmark_workspaceId_idx_ba65f874\" on \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Bookmark_workspaceId_idx_ba65f874",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Bookmark_workspaceId_idx_ba65f874\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_idx_ba65f874\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Bookmark_workspaceId_idx_ba65f874\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Bookmark_workspaceId_idx_ba65f874\"",
+        "sql": "CREATE INDEX \"Bookmark_workspaceId_idx_ba65f874\" ON \"public\".\"Bookmark\" (\"workspaceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Bookmark_workspaceId_idx_ba65f874\" exists on \"Bookmark\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_idx_ba65f874\"",
+          "i",
+          "I",
+          "\"public\".\"Bookmark\"",
+          "btree",
+          "[\"workspaceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Bookmark.Bookmark_workspaceId_isArchived_createdAt_idx_5815ab25",
+    "label": "Create index \"Bookmark_workspaceId_isArchived_createdAt_idx_5815ab25\" on \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Bookmark_workspaceId_isArchived_createdAt_idx_5815ab25",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Bookmark_workspaceId_isArchived_createdAt_idx_5815ab25\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_isArchived_createdAt_idx_5815ab25\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Bookmark_workspaceId_isArchived_createdAt_idx_5815ab25\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Bookmark_workspaceId_isArchived_createdAt_idx_5815ab25\"",
+        "sql": "CREATE INDEX \"Bookmark_workspaceId_isArchived_createdAt_idx_5815ab25\" ON \"public\".\"Bookmark\" (\"workspaceId\", \"isArchived\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Bookmark_workspaceId_isArchived_createdAt_idx_5815ab25\" exists on \"Bookmark\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_isArchived_createdAt_idx_5815ab25\"",
+          "i",
+          "I",
+          "\"public\".\"Bookmark\"",
+          "btree",
+          "[\"workspaceId\",\"isArchived\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Bookmark.Bookmark_workspaceId_isFavorite_createdAt_idx_b7ed85f1",
+    "label": "Create index \"Bookmark_workspaceId_isFavorite_createdAt_idx_b7ed85f1\" on \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Bookmark_workspaceId_isFavorite_createdAt_idx_b7ed85f1",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Bookmark_workspaceId_isFavorite_createdAt_idx_b7ed85f1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_isFavorite_createdAt_idx_b7ed85f1\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Bookmark_workspaceId_isFavorite_createdAt_idx_b7ed85f1\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Bookmark_workspaceId_isFavorite_createdAt_idx_b7ed85f1\"",
+        "sql": "CREATE INDEX \"Bookmark_workspaceId_isFavorite_createdAt_idx_b7ed85f1\" ON \"public\".\"Bookmark\" (\"workspaceId\", \"isFavorite\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Bookmark_workspaceId_isFavorite_createdAt_idx_b7ed85f1\" exists on \"Bookmark\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Bookmark_workspaceId_isFavorite_createdAt_idx_b7ed85f1\"",
+          "i",
+          "I",
+          "\"public\".\"Bookmark\"",
+          "btree",
+          "[\"workspaceId\",\"isFavorite\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Bookmark.bookmark_search_d46bcede",
+    "label": "Create index \"bookmark_search_d46bcede\" on \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "bookmark_search_d46bcede",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"bookmark_search_d46bcede\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"bookmark_search_d46bcede\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"bookmark_search_d46bcede\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"bookmark_search_d46bcede\"",
+        "sql": "CREATE INDEX \"bookmark_search_d46bcede\" ON \"public\".\"Bookmark\" USING \"gin\" ((setweight(to_tsvector('english', coalesce(\"title\", '')), 'A') || setweight(to_tsvector('english', coalesce(\"domain\", '')), 'A') || setweight(to_tsvector('english', coalesce(\"description\", '')), 'B') || setweight(to_tsvector('english', coalesce(\"userNotes\", '')), 'B')))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"bookmark_search_d46bcede\" exists on \"Bookmark\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"bookmark_search_d46bcede\"",
+          "i",
+          "I",
+          "\"public\".\"Bookmark\"",
+          "gin"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.BookmarkNote.BookmarkNote_bookmarkId_idx_1962ac1f",
+    "label": "Create index \"BookmarkNote_bookmarkId_idx_1962ac1f\" on \"BookmarkNote\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "BookmarkNote_bookmarkId_idx_1962ac1f",
+        "table": "BookmarkNote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"BookmarkNote_bookmarkId_idx_1962ac1f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkNote_bookmarkId_idx_1962ac1f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"BookmarkNote_bookmarkId_idx_1962ac1f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"BookmarkNote_bookmarkId_idx_1962ac1f\"",
+        "sql": "CREATE INDEX \"BookmarkNote_bookmarkId_idx_1962ac1f\" ON \"public\".\"BookmarkNote\" (\"bookmarkId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"BookmarkNote_bookmarkId_idx_1962ac1f\" exists on \"BookmarkNote\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkNote_bookmarkId_idx_1962ac1f\"",
+          "i",
+          "I",
+          "\"public\".\"BookmarkNote\"",
+          "btree",
+          "[\"bookmarkId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.BookmarkNote.BookmarkNote_noteId_idx_0612c5b1",
+    "label": "Create index \"BookmarkNote_noteId_idx_0612c5b1\" on \"BookmarkNote\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "BookmarkNote_noteId_idx_0612c5b1",
+        "table": "BookmarkNote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"BookmarkNote_noteId_idx_0612c5b1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkNote_noteId_idx_0612c5b1\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"BookmarkNote_noteId_idx_0612c5b1\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"BookmarkNote_noteId_idx_0612c5b1\"",
+        "sql": "CREATE INDEX \"BookmarkNote_noteId_idx_0612c5b1\" ON \"public\".\"BookmarkNote\" (\"noteId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"BookmarkNote_noteId_idx_0612c5b1\" exists on \"BookmarkNote\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkNote_noteId_idx_0612c5b1\"",
+          "i",
+          "I",
+          "\"public\".\"BookmarkNote\"",
+          "btree",
+          "[\"noteId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.BookmarkTag.BookmarkTag_bookmarkId_idx_1962ac1f",
+    "label": "Create index \"BookmarkTag_bookmarkId_idx_1962ac1f\" on \"BookmarkTag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "BookmarkTag_bookmarkId_idx_1962ac1f",
+        "table": "BookmarkTag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"BookmarkTag_bookmarkId_idx_1962ac1f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkTag_bookmarkId_idx_1962ac1f\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"BookmarkTag_bookmarkId_idx_1962ac1f\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"BookmarkTag_bookmarkId_idx_1962ac1f\"",
+        "sql": "CREATE INDEX \"BookmarkTag_bookmarkId_idx_1962ac1f\" ON \"public\".\"BookmarkTag\" (\"bookmarkId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"BookmarkTag_bookmarkId_idx_1962ac1f\" exists on \"BookmarkTag\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkTag_bookmarkId_idx_1962ac1f\"",
+          "i",
+          "I",
+          "\"public\".\"BookmarkTag\"",
+          "btree",
+          "[\"bookmarkId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.BookmarkTag.BookmarkTag_tagId_idx_86854244",
+    "label": "Create index \"BookmarkTag_tagId_idx_86854244\" on \"BookmarkTag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "BookmarkTag_tagId_idx_86854244",
+        "table": "BookmarkTag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"BookmarkTag_tagId_idx_86854244\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkTag_tagId_idx_86854244\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"BookmarkTag_tagId_idx_86854244\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"BookmarkTag_tagId_idx_86854244\"",
+        "sql": "CREATE INDEX \"BookmarkTag_tagId_idx_86854244\" ON \"public\".\"BookmarkTag\" (\"tagId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"BookmarkTag_tagId_idx_86854244\" exists on \"BookmarkTag\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"BookmarkTag_tagId_idx_86854244\"",
+          "i",
+          "I",
+          "\"public\".\"BookmarkTag\"",
+          "btree",
+          "[\"tagId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Collection.Collection_workspaceId_createdAt_idx_5ff7e893",
+    "label": "Create index \"Collection_workspaceId_createdAt_idx_5ff7e893\" on \"Collection\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Collection_workspaceId_createdAt_idx_5ff7e893",
+        "table": "Collection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Collection_workspaceId_createdAt_idx_5ff7e893\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Collection_workspaceId_createdAt_idx_5ff7e893\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Collection_workspaceId_createdAt_idx_5ff7e893\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Collection_workspaceId_createdAt_idx_5ff7e893\"",
+        "sql": "CREATE INDEX \"Collection_workspaceId_createdAt_idx_5ff7e893\" ON \"public\".\"Collection\" (\"workspaceId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Collection_workspaceId_createdAt_idx_5ff7e893\" exists on \"Collection\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Collection_workspaceId_createdAt_idx_5ff7e893\"",
+          "i",
+          "I",
+          "\"public\".\"Collection\"",
+          "btree",
+          "[\"workspaceId\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Collection.Collection_workspaceId_idx_ba65f874",
+    "label": "Create index \"Collection_workspaceId_idx_ba65f874\" on \"Collection\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Collection_workspaceId_idx_ba65f874",
+        "table": "Collection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Collection_workspaceId_idx_ba65f874\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Collection_workspaceId_idx_ba65f874\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Collection_workspaceId_idx_ba65f874\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Collection_workspaceId_idx_ba65f874\"",
+        "sql": "CREATE INDEX \"Collection_workspaceId_idx_ba65f874\" ON \"public\".\"Collection\" (\"workspaceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Collection_workspaceId_idx_ba65f874\" exists on \"Collection\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Collection_workspaceId_idx_ba65f874\"",
+          "i",
+          "I",
+          "\"public\".\"Collection\"",
+          "btree",
+          "[\"workspaceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Collection.collection_name_search_139e2a64",
+    "label": "Create index \"collection_name_search_139e2a64\" on \"Collection\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "collection_name_search_139e2a64",
+        "table": "Collection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"collection_name_search_139e2a64\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"collection_name_search_139e2a64\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"collection_name_search_139e2a64\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"collection_name_search_139e2a64\"",
+        "sql": "CREATE INDEX \"collection_name_search_139e2a64\" ON \"public\".\"Collection\" USING \"gin\" (to_tsvector('english', \"name\"))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"collection_name_search_139e2a64\" exists on \"Collection\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"collection_name_search_139e2a64\"",
+          "i",
+          "I",
+          "\"public\".\"Collection\"",
+          "gin"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ExtensionCredential.ExtensionCredential_userId_idx_a489d58a",
+    "label": "Create index \"ExtensionCredential_userId_idx_a489d58a\" on \"ExtensionCredential\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ExtensionCredential_userId_idx_a489d58a",
+        "table": "ExtensionCredential"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ExtensionCredential_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ExtensionCredential_userId_idx_a489d58a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ExtensionCredential_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ExtensionCredential_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"ExtensionCredential_userId_idx_a489d58a\" ON \"public\".\"ExtensionCredential\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ExtensionCredential_userId_idx_a489d58a\" exists on \"ExtensionCredential\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ExtensionCredential_userId_idx_a489d58a\"",
+          "i",
+          "I",
+          "\"public\".\"ExtensionCredential\"",
+          "btree",
+          "[\"userId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ExtensionCredential.ExtensionCredential_userId_revokedAt_idx_eae4cbef",
+    "label": "Create index \"ExtensionCredential_userId_revokedAt_idx_eae4cbef\" on \"ExtensionCredential\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ExtensionCredential_userId_revokedAt_idx_eae4cbef",
+        "table": "ExtensionCredential"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ExtensionCredential_userId_revokedAt_idx_eae4cbef\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ExtensionCredential_userId_revokedAt_idx_eae4cbef\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ExtensionCredential_userId_revokedAt_idx_eae4cbef\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ExtensionCredential_userId_revokedAt_idx_eae4cbef\"",
+        "sql": "CREATE INDEX \"ExtensionCredential_userId_revokedAt_idx_eae4cbef\" ON \"public\".\"ExtensionCredential\" (\"userId\", \"revokedAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ExtensionCredential_userId_revokedAt_idx_eae4cbef\" exists on \"ExtensionCredential\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ExtensionCredential_userId_revokedAt_idx_eae4cbef\"",
+          "i",
+          "I",
+          "\"public\".\"ExtensionCredential\"",
+          "btree",
+          "[\"userId\",\"revokedAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ExtensionCredential.ExtensionCredential_workspaceId_idx_ba65f874",
+    "label": "Create index \"ExtensionCredential_workspaceId_idx_ba65f874\" on \"ExtensionCredential\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ExtensionCredential_workspaceId_idx_ba65f874",
+        "table": "ExtensionCredential"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ExtensionCredential_workspaceId_idx_ba65f874\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ExtensionCredential_workspaceId_idx_ba65f874\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ExtensionCredential_workspaceId_idx_ba65f874\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ExtensionCredential_workspaceId_idx_ba65f874\"",
+        "sql": "CREATE INDEX \"ExtensionCredential_workspaceId_idx_ba65f874\" ON \"public\".\"ExtensionCredential\" (\"workspaceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ExtensionCredential_workspaceId_idx_ba65f874\" exists on \"ExtensionCredential\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ExtensionCredential_workspaceId_idx_ba65f874\"",
+          "i",
+          "I",
+          "\"public\".\"ExtensionCredential\"",
+          "btree",
+          "[\"workspaceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ExtensionCredential.ExtensionCredential_workspaceId_userId_idx_6210ae03",
+    "label": "Create index \"ExtensionCredential_workspaceId_userId_idx_6210ae03\" on \"ExtensionCredential\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ExtensionCredential_workspaceId_userId_idx_6210ae03",
+        "table": "ExtensionCredential"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ExtensionCredential_workspaceId_userId_idx_6210ae03\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ExtensionCredential_workspaceId_userId_idx_6210ae03\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ExtensionCredential_workspaceId_userId_idx_6210ae03\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ExtensionCredential_workspaceId_userId_idx_6210ae03\"",
+        "sql": "CREATE INDEX \"ExtensionCredential_workspaceId_userId_idx_6210ae03\" ON \"public\".\"ExtensionCredential\" (\"workspaceId\", \"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ExtensionCredential_workspaceId_userId_idx_6210ae03\" exists on \"ExtensionCredential\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ExtensionCredential_workspaceId_userId_idx_6210ae03\"",
+          "i",
+          "I",
+          "\"public\".\"ExtensionCredential\"",
+          "btree",
+          "[\"workspaceId\",\"userId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Note.Note_workspaceId_idx_ba65f874",
+    "label": "Create index \"Note_workspaceId_idx_ba65f874\" on \"Note\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Note_workspaceId_idx_ba65f874",
+        "table": "Note"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Note_workspaceId_idx_ba65f874\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Note_workspaceId_idx_ba65f874\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Note_workspaceId_idx_ba65f874\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Note_workspaceId_idx_ba65f874\"",
+        "sql": "CREATE INDEX \"Note_workspaceId_idx_ba65f874\" ON \"public\".\"Note\" (\"workspaceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Note_workspaceId_idx_ba65f874\" exists on \"Note\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Note_workspaceId_idx_ba65f874\"",
+          "i",
+          "I",
+          "\"public\".\"Note\"",
+          "btree",
+          "[\"workspaceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Note.Note_workspaceId_isPinned_updatedAt_idx_44bacf54",
+    "label": "Create index \"Note_workspaceId_isPinned_updatedAt_idx_44bacf54\" on \"Note\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Note_workspaceId_isPinned_updatedAt_idx_44bacf54",
+        "table": "Note"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Note_workspaceId_isPinned_updatedAt_idx_44bacf54\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Note_workspaceId_isPinned_updatedAt_idx_44bacf54\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Note_workspaceId_isPinned_updatedAt_idx_44bacf54\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Note_workspaceId_isPinned_updatedAt_idx_44bacf54\"",
+        "sql": "CREATE INDEX \"Note_workspaceId_isPinned_updatedAt_idx_44bacf54\" ON \"public\".\"Note\" (\"workspaceId\", \"isPinned\", \"updatedAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Note_workspaceId_isPinned_updatedAt_idx_44bacf54\" exists on \"Note\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Note_workspaceId_isPinned_updatedAt_idx_44bacf54\"",
+          "i",
+          "I",
+          "\"public\".\"Note\"",
+          "btree",
+          "[\"workspaceId\",\"isPinned\",\"updatedAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Note.Note_workspaceId_updatedAt_idx_9c279e2a",
+    "label": "Create index \"Note_workspaceId_updatedAt_idx_9c279e2a\" on \"Note\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Note_workspaceId_updatedAt_idx_9c279e2a",
+        "table": "Note"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Note_workspaceId_updatedAt_idx_9c279e2a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Note_workspaceId_updatedAt_idx_9c279e2a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Note_workspaceId_updatedAt_idx_9c279e2a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Note_workspaceId_updatedAt_idx_9c279e2a\"",
+        "sql": "CREATE INDEX \"Note_workspaceId_updatedAt_idx_9c279e2a\" ON \"public\".\"Note\" (\"workspaceId\", \"updatedAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Note_workspaceId_updatedAt_idx_9c279e2a\" exists on \"Note\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Note_workspaceId_updatedAt_idx_9c279e2a\"",
+          "i",
+          "I",
+          "\"public\".\"Note\"",
+          "btree",
+          "[\"workspaceId\",\"updatedAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Note.note_search_d687e9fe",
+    "label": "Create index \"note_search_d687e9fe\" on \"Note\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "note_search_d687e9fe",
+        "table": "Note"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"note_search_d687e9fe\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"note_search_d687e9fe\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"note_search_d687e9fe\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"note_search_d687e9fe\"",
+        "sql": "CREATE INDEX \"note_search_d687e9fe\" ON \"public\".\"Note\" USING \"gin\" ((setweight(to_tsvector('english', coalesce(\"title\", '')), 'A') || setweight(to_tsvector('english', coalesce(\"content\", '')), 'B')))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"note_search_d687e9fe\" exists on \"Note\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"note_search_d687e9fe\"",
+          "i",
+          "I",
+          "\"public\".\"Note\"",
+          "gin"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Tag.Tag_workspaceId_idx_ba65f874",
+    "label": "Create index \"Tag_workspaceId_idx_ba65f874\" on \"Tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Tag_workspaceId_idx_ba65f874",
+        "table": "Tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Tag_workspaceId_idx_ba65f874\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Tag_workspaceId_idx_ba65f874\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Tag_workspaceId_idx_ba65f874\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Tag_workspaceId_idx_ba65f874\"",
+        "sql": "CREATE INDEX \"Tag_workspaceId_idx_ba65f874\" ON \"public\".\"Tag\" (\"workspaceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Tag_workspaceId_idx_ba65f874\" exists on \"Tag\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Tag_workspaceId_idx_ba65f874\"",
+          "i",
+          "I",
+          "\"public\".\"Tag\"",
+          "btree",
+          "[\"workspaceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Tag.Tag_workspaceId_name_idx_f500a748",
+    "label": "Create index \"Tag_workspaceId_name_idx_f500a748\" on \"Tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Tag_workspaceId_name_idx_f500a748",
+        "table": "Tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Tag_workspaceId_name_idx_f500a748\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Tag_workspaceId_name_idx_f500a748\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Tag_workspaceId_name_idx_f500a748\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Tag_workspaceId_name_idx_f500a748\"",
+        "sql": "CREATE INDEX \"Tag_workspaceId_name_idx_f500a748\" ON \"public\".\"Tag\" (\"workspaceId\", \"name\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Tag_workspaceId_name_idx_f500a748\" exists on \"Tag\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Tag_workspaceId_name_idx_f500a748\"",
+          "i",
+          "I",
+          "\"public\".\"Tag\"",
+          "btree",
+          "[\"workspaceId\",\"name\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Tag.tag_name_search_139e2a64",
+    "label": "Create index \"tag_name_search_139e2a64\" on \"Tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "tag_name_search_139e2a64",
+        "table": "Tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"tag_name_search_139e2a64\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tag_name_search_139e2a64\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"tag_name_search_139e2a64\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"tag_name_search_139e2a64\"",
+        "sql": "CREATE INDEX \"tag_name_search_139e2a64\" ON \"public\".\"Tag\" USING \"gin\" (to_tsvector('english', \"name\"))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"tag_name_search_139e2a64\" exists on \"Tag\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"tag_name_search_139e2a64\"",
+          "i",
+          "I",
+          "\"public\".\"Tag\"",
+          "gin"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Workspace.Workspace_createdAt_idx_9575dbd7",
+    "label": "Create index \"Workspace_createdAt_idx_9575dbd7\" on \"Workspace\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Workspace_createdAt_idx_9575dbd7",
+        "table": "Workspace"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Workspace_createdAt_idx_9575dbd7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Workspace_createdAt_idx_9575dbd7\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Workspace_createdAt_idx_9575dbd7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Workspace_createdAt_idx_9575dbd7\"",
+        "sql": "CREATE INDEX \"Workspace_createdAt_idx_9575dbd7\" ON \"public\".\"Workspace\" (\"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Workspace_createdAt_idx_9575dbd7\" exists on \"Workspace\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Workspace_createdAt_idx_9575dbd7\"",
+          "i",
+          "I",
+          "\"public\".\"Workspace\"",
+          "btree",
+          "[\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Workspace.Workspace_ownerId_idx_e2d0c1ef",
+    "label": "Create index \"Workspace_ownerId_idx_e2d0c1ef\" on \"Workspace\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Workspace_ownerId_idx_e2d0c1ef",
+        "table": "Workspace"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Workspace_ownerId_idx_e2d0c1ef\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Workspace_ownerId_idx_e2d0c1ef\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Workspace_ownerId_idx_e2d0c1ef\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Workspace_ownerId_idx_e2d0c1ef\"",
+        "sql": "CREATE INDEX \"Workspace_ownerId_idx_e2d0c1ef\" ON \"public\".\"Workspace\" (\"ownerId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Workspace_ownerId_idx_e2d0c1ef\" exists on \"Workspace\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Workspace_ownerId_idx_e2d0c1ef\"",
+          "i",
+          "I",
+          "\"public\".\"Workspace\"",
+          "btree",
+          "[\"ownerId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WorkspaceMember.WorkspaceMember_userId_idx_a489d58a",
+    "label": "Create index \"WorkspaceMember_userId_idx_a489d58a\" on \"WorkspaceMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WorkspaceMember_userId_idx_a489d58a",
+        "table": "WorkspaceMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WorkspaceMember_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkspaceMember_userId_idx_a489d58a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"WorkspaceMember_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WorkspaceMember_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"WorkspaceMember_userId_idx_a489d58a\" ON \"public\".\"WorkspaceMember\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WorkspaceMember_userId_idx_a489d58a\" exists on \"WorkspaceMember\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"WorkspaceMember_userId_idx_a489d58a\"",
+          "i",
+          "I",
+          "\"public\".\"WorkspaceMember\"",
+          "btree",
+          "[\"userId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WorkspaceMember.WorkspaceMember_workspaceId_idx_ba65f874",
+    "label": "Create index \"WorkspaceMember_workspaceId_idx_ba65f874\" on \"WorkspaceMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WorkspaceMember_workspaceId_idx_ba65f874",
+        "table": "WorkspaceMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WorkspaceMember_workspaceId_idx_ba65f874\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkspaceMember_workspaceId_idx_ba65f874\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"WorkspaceMember_workspaceId_idx_ba65f874\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WorkspaceMember_workspaceId_idx_ba65f874\"",
+        "sql": "CREATE INDEX \"WorkspaceMember_workspaceId_idx_ba65f874\" ON \"public\".\"WorkspaceMember\" (\"workspaceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WorkspaceMember_workspaceId_idx_ba65f874\" exists on \"WorkspaceMember\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"WorkspaceMember_workspaceId_idx_ba65f874\"",
+          "i",
+          "I",
+          "\"public\".\"WorkspaceMember\"",
+          "btree",
+          "[\"workspaceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WorkspaceMember.WorkspaceMember_workspaceId_role_idx_8dc1760e",
+    "label": "Create index \"WorkspaceMember_workspaceId_role_idx_8dc1760e\" on \"WorkspaceMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WorkspaceMember_workspaceId_role_idx_8dc1760e",
+        "table": "WorkspaceMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WorkspaceMember_workspaceId_role_idx_8dc1760e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WorkspaceMember_workspaceId_role_idx_8dc1760e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"WorkspaceMember_workspaceId_role_idx_8dc1760e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WorkspaceMember_workspaceId_role_idx_8dc1760e\"",
+        "sql": "CREATE INDEX \"WorkspaceMember_workspaceId_role_idx_8dc1760e\" ON \"public\".\"WorkspaceMember\" (\"workspaceId\", \"role\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WorkspaceMember_workspaceId_role_idx_8dc1760e\" exists on \"WorkspaceMember\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"WorkspaceMember_workspaceId_role_idx_8dc1760e\"",
+          "i",
+          "I",
+          "\"public\".\"WorkspaceMember\"",
+          "btree",
+          "[\"workspaceId\",\"role\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Activity.Activity_workspaceId_fkey",
+    "label": "Add foreign key \"Activity_workspaceId_fkey\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Activity_workspaceId_fkey",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Activity_workspaceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Activity_workspaceId_fkey",
+          "public",
+          "\"public\".\"Activity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Activity_workspaceId_fkey\" on \"Activity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Activity_workspaceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Activity\"\nADD CONSTRAINT \"Activity_workspaceId_fkey\"\nFOREIGN KEY (\"workspaceId\")\nREFERENCES \"public\".\"Workspace\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Activity_workspaceId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Activity_workspaceId_fkey",
+          "public",
+          "\"public\".\"Activity\"",
+          "f",
+          "[\"workspaceId\"]",
+          "\"public\".\"Workspace\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Activity.Activity_actorId_fkey",
+    "label": "Add foreign key \"Activity_actorId_fkey\" on \"Activity\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Activity_actorId_fkey",
+        "table": "Activity"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Activity_actorId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Activity_actorId_fkey",
+          "public",
+          "\"public\".\"Activity\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Activity_actorId_fkey\" on \"Activity\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Activity_actorId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Activity\"\nADD CONSTRAINT \"Activity_actorId_fkey\"\nFOREIGN KEY (\"actorId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE RESTRICT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Activity_actorId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Activity_actorId_fkey",
+          "public",
+          "\"public\".\"Activity\"",
+          "f",
+          "[\"actorId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "r",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Bookmark.Bookmark_workspaceId_fkey",
+    "label": "Add foreign key \"Bookmark_workspaceId_fkey\" on \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Bookmark_workspaceId_fkey",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Bookmark_workspaceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Bookmark_workspaceId_fkey",
+          "public",
+          "\"public\".\"Bookmark\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Bookmark_workspaceId_fkey\" on \"Bookmark\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Bookmark_workspaceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Bookmark\"\nADD CONSTRAINT \"Bookmark_workspaceId_fkey\"\nFOREIGN KEY (\"workspaceId\")\nREFERENCES \"public\".\"Workspace\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Bookmark_workspaceId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Bookmark_workspaceId_fkey",
+          "public",
+          "\"public\".\"Bookmark\"",
+          "f",
+          "[\"workspaceId\"]",
+          "\"public\".\"Workspace\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Bookmark.Bookmark_collectionId_fkey",
+    "label": "Add foreign key \"Bookmark_collectionId_fkey\" on \"Bookmark\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Bookmark_collectionId_fkey",
+        "table": "Bookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Bookmark_collectionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Bookmark_collectionId_fkey",
+          "public",
+          "\"public\".\"Bookmark\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Bookmark_collectionId_fkey\" on \"Bookmark\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Bookmark_collectionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Bookmark\"\nADD CONSTRAINT \"Bookmark_collectionId_fkey\"\nFOREIGN KEY (\"collectionId\")\nREFERENCES \"public\".\"Collection\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Bookmark_collectionId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Bookmark_collectionId_fkey",
+          "public",
+          "\"public\".\"Bookmark\"",
+          "f",
+          "[\"collectionId\"]",
+          "\"public\".\"Collection\"",
+          "[\"id\"]",
+          "n",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.BookmarkNote.BookmarkNote_bookmarkId_fkey",
+    "label": "Add foreign key \"BookmarkNote_bookmarkId_fkey\" on \"BookmarkNote\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "BookmarkNote_bookmarkId_fkey",
+        "table": "BookmarkNote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"BookmarkNote_bookmarkId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "BookmarkNote_bookmarkId_fkey",
+          "public",
+          "\"public\".\"BookmarkNote\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"BookmarkNote_bookmarkId_fkey\" on \"BookmarkNote\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"BookmarkNote_bookmarkId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"BookmarkNote\"\nADD CONSTRAINT \"BookmarkNote_bookmarkId_fkey\"\nFOREIGN KEY (\"bookmarkId\")\nREFERENCES \"public\".\"Bookmark\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"BookmarkNote_bookmarkId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "BookmarkNote_bookmarkId_fkey",
+          "public",
+          "\"public\".\"BookmarkNote\"",
+          "f",
+          "[\"bookmarkId\"]",
+          "\"public\".\"Bookmark\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.BookmarkNote.BookmarkNote_noteId_fkey",
+    "label": "Add foreign key \"BookmarkNote_noteId_fkey\" on \"BookmarkNote\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "BookmarkNote_noteId_fkey",
+        "table": "BookmarkNote"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"BookmarkNote_noteId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "BookmarkNote_noteId_fkey",
+          "public",
+          "\"public\".\"BookmarkNote\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"BookmarkNote_noteId_fkey\" on \"BookmarkNote\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"BookmarkNote_noteId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"BookmarkNote\"\nADD CONSTRAINT \"BookmarkNote_noteId_fkey\"\nFOREIGN KEY (\"noteId\")\nREFERENCES \"public\".\"Note\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"BookmarkNote_noteId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "BookmarkNote_noteId_fkey",
+          "public",
+          "\"public\".\"BookmarkNote\"",
+          "f",
+          "[\"noteId\"]",
+          "\"public\".\"Note\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.BookmarkTag.BookmarkTag_bookmarkId_fkey",
+    "label": "Add foreign key \"BookmarkTag_bookmarkId_fkey\" on \"BookmarkTag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "BookmarkTag_bookmarkId_fkey",
+        "table": "BookmarkTag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"BookmarkTag_bookmarkId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "BookmarkTag_bookmarkId_fkey",
+          "public",
+          "\"public\".\"BookmarkTag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"BookmarkTag_bookmarkId_fkey\" on \"BookmarkTag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"BookmarkTag_bookmarkId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"BookmarkTag\"\nADD CONSTRAINT \"BookmarkTag_bookmarkId_fkey\"\nFOREIGN KEY (\"bookmarkId\")\nREFERENCES \"public\".\"Bookmark\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"BookmarkTag_bookmarkId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "BookmarkTag_bookmarkId_fkey",
+          "public",
+          "\"public\".\"BookmarkTag\"",
+          "f",
+          "[\"bookmarkId\"]",
+          "\"public\".\"Bookmark\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.BookmarkTag.BookmarkTag_tagId_fkey",
+    "label": "Add foreign key \"BookmarkTag_tagId_fkey\" on \"BookmarkTag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "BookmarkTag_tagId_fkey",
+        "table": "BookmarkTag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"BookmarkTag_tagId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "BookmarkTag_tagId_fkey",
+          "public",
+          "\"public\".\"BookmarkTag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"BookmarkTag_tagId_fkey\" on \"BookmarkTag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"BookmarkTag_tagId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"BookmarkTag\"\nADD CONSTRAINT \"BookmarkTag_tagId_fkey\"\nFOREIGN KEY (\"tagId\")\nREFERENCES \"public\".\"Tag\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"BookmarkTag_tagId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "BookmarkTag_tagId_fkey",
+          "public",
+          "\"public\".\"BookmarkTag\"",
+          "f",
+          "[\"tagId\"]",
+          "\"public\".\"Tag\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Collection.Collection_workspaceId_fkey",
+    "label": "Add foreign key \"Collection_workspaceId_fkey\" on \"Collection\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Collection_workspaceId_fkey",
+        "table": "Collection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Collection_workspaceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Collection_workspaceId_fkey",
+          "public",
+          "\"public\".\"Collection\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Collection_workspaceId_fkey\" on \"Collection\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Collection_workspaceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Collection\"\nADD CONSTRAINT \"Collection_workspaceId_fkey\"\nFOREIGN KEY (\"workspaceId\")\nREFERENCES \"public\".\"Workspace\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Collection_workspaceId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Collection_workspaceId_fkey",
+          "public",
+          "\"public\".\"Collection\"",
+          "f",
+          "[\"workspaceId\"]",
+          "\"public\".\"Workspace\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ExtensionCredential.ExtensionCredential_workspaceId_fkey",
+    "label": "Add foreign key \"ExtensionCredential_workspaceId_fkey\" on \"ExtensionCredential\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ExtensionCredential_workspaceId_fkey",
+        "table": "ExtensionCredential"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ExtensionCredential_workspaceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ExtensionCredential_workspaceId_fkey",
+          "public",
+          "\"public\".\"ExtensionCredential\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"ExtensionCredential_workspaceId_fkey\" on \"ExtensionCredential\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ExtensionCredential_workspaceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ExtensionCredential\"\nADD CONSTRAINT \"ExtensionCredential_workspaceId_fkey\"\nFOREIGN KEY (\"workspaceId\")\nREFERENCES \"public\".\"Workspace\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ExtensionCredential_workspaceId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "ExtensionCredential_workspaceId_fkey",
+          "public",
+          "\"public\".\"ExtensionCredential\"",
+          "f",
+          "[\"workspaceId\"]",
+          "\"public\".\"Workspace\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ExtensionCredential.ExtensionCredential_userId_fkey",
+    "label": "Add foreign key \"ExtensionCredential_userId_fkey\" on \"ExtensionCredential\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ExtensionCredential_userId_fkey",
+        "table": "ExtensionCredential"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ExtensionCredential_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ExtensionCredential_userId_fkey",
+          "public",
+          "\"public\".\"ExtensionCredential\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"ExtensionCredential_userId_fkey\" on \"ExtensionCredential\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ExtensionCredential_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ExtensionCredential\"\nADD CONSTRAINT \"ExtensionCredential_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ExtensionCredential_userId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "ExtensionCredential_userId_fkey",
+          "public",
+          "\"public\".\"ExtensionCredential\"",
+          "f",
+          "[\"userId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Note.Note_workspaceId_fkey",
+    "label": "Add foreign key \"Note_workspaceId_fkey\" on \"Note\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Note_workspaceId_fkey",
+        "table": "Note"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Note_workspaceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Note_workspaceId_fkey",
+          "public",
+          "\"public\".\"Note\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Note_workspaceId_fkey\" on \"Note\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Note_workspaceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Note\"\nADD CONSTRAINT \"Note_workspaceId_fkey\"\nFOREIGN KEY (\"workspaceId\")\nREFERENCES \"public\".\"Workspace\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Note_workspaceId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Note_workspaceId_fkey",
+          "public",
+          "\"public\".\"Note\"",
+          "f",
+          "[\"workspaceId\"]",
+          "\"public\".\"Workspace\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Tag.Tag_workspaceId_fkey",
+    "label": "Add foreign key \"Tag_workspaceId_fkey\" on \"Tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Tag_workspaceId_fkey",
+        "table": "Tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Tag_workspaceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Tag_workspaceId_fkey",
+          "public",
+          "\"public\".\"Tag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Tag_workspaceId_fkey\" on \"Tag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Tag_workspaceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Tag\"\nADD CONSTRAINT \"Tag_workspaceId_fkey\"\nFOREIGN KEY (\"workspaceId\")\nREFERENCES \"public\".\"Workspace\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Tag_workspaceId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Tag_workspaceId_fkey",
+          "public",
+          "\"public\".\"Tag\"",
+          "f",
+          "[\"workspaceId\"]",
+          "\"public\".\"Workspace\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Workspace.Workspace_ownerId_fkey",
+    "label": "Add foreign key \"Workspace_ownerId_fkey\" on \"Workspace\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Workspace_ownerId_fkey",
+        "table": "Workspace"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Workspace_ownerId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Workspace_ownerId_fkey",
+          "public",
+          "\"public\".\"Workspace\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Workspace_ownerId_fkey\" on \"Workspace\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Workspace_ownerId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Workspace\"\nADD CONSTRAINT \"Workspace_ownerId_fkey\"\nFOREIGN KEY (\"ownerId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE RESTRICT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Workspace_ownerId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Workspace_ownerId_fkey",
+          "public",
+          "\"public\".\"Workspace\"",
+          "f",
+          "[\"ownerId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "r",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.WorkspaceMember.WorkspaceMember_workspaceId_fkey",
+    "label": "Add foreign key \"WorkspaceMember_workspaceId_fkey\" on \"WorkspaceMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "WorkspaceMember_workspaceId_fkey",
+        "table": "WorkspaceMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"WorkspaceMember_workspaceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkspaceMember_workspaceId_fkey",
+          "public",
+          "\"public\".\"WorkspaceMember\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"WorkspaceMember_workspaceId_fkey\" on \"WorkspaceMember\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"WorkspaceMember_workspaceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"WorkspaceMember\"\nADD CONSTRAINT \"WorkspaceMember_workspaceId_fkey\"\nFOREIGN KEY (\"workspaceId\")\nREFERENCES \"public\".\"Workspace\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"WorkspaceMember_workspaceId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "WorkspaceMember_workspaceId_fkey",
+          "public",
+          "\"public\".\"WorkspaceMember\"",
+          "f",
+          "[\"workspaceId\"]",
+          "\"public\".\"Workspace\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.WorkspaceMember.WorkspaceMember_userId_fkey",
+    "label": "Add foreign key \"WorkspaceMember_userId_fkey\" on \"WorkspaceMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "WorkspaceMember_userId_fkey",
+        "table": "WorkspaceMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"WorkspaceMember_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WorkspaceMember_userId_fkey",
+          "public",
+          "\"public\".\"WorkspaceMember\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"WorkspaceMember_userId_fkey\" on \"WorkspaceMember\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"WorkspaceMember_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"WorkspaceMember\"\nADD CONSTRAINT \"WorkspaceMember_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"WorkspaceMember_userId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "WorkspaceMember_userId_fkey",
+          "public",
+          "\"public\".\"WorkspaceMember\"",
+          "f",
+          "[\"userId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  }
+]
