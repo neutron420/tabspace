@@ -441,10 +441,12 @@
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
-                    "id"
+                    "id",
+                    "workspaceId"
                   ],
                   "targetFields": [
-                    "bookmarkId"
+                    "bookmarkId",
+                    "workspaceId"
                   ]
                 },
                 "to": {
@@ -452,14 +454,34 @@
                   "namespace": "public"
                 }
               },
+              "scopedCollection": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "collectionId",
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id",
+                    "workspaceId"
+                  ]
+                },
+                "to": {
+                  "model": "Collection",
+                  "namespace": "public"
+                }
+              },
               "tags": {
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
-                    "id"
+                    "id",
+                    "workspaceId"
                   ],
                   "targetFields": [
-                    "bookmarkId"
+                    "bookmarkId",
+                    "workspaceId"
                   ]
                 },
                 "to": {
@@ -565,6 +587,13 @@
                   "codecId": "pg/uuid@1",
                   "kind": "scalar"
                 }
+              },
+              "workspaceId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
@@ -573,10 +602,12 @@
                 "nullable": false,
                 "on": {
                   "localFields": [
-                    "bookmarkId"
+                    "bookmarkId",
+                    "workspaceId"
                   ],
                   "targetFields": [
-                    "id"
+                    "id",
+                    "workspaceId"
                   ]
                 },
                 "to": {
@@ -589,10 +620,12 @@
                 "nullable": false,
                 "on": {
                   "localFields": [
-                    "noteId"
+                    "noteId",
+                    "workspaceId"
                   ],
                   "targetFields": [
-                    "id"
+                    "id",
+                    "workspaceId"
                   ]
                 },
                 "to": {
@@ -614,6 +647,9 @@
                 },
                 "noteId": {
                   "column": "noteId"
+                },
+                "workspaceId": {
+                  "column": "workspaceId"
                 }
               },
               "namespaceId": "public",
@@ -652,6 +688,13 @@
                   "codecId": "pg/uuid@1",
                   "kind": "scalar"
                 }
+              },
+              "workspaceId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
@@ -660,10 +703,12 @@
                 "nullable": false,
                 "on": {
                   "localFields": [
-                    "bookmarkId"
+                    "bookmarkId",
+                    "workspaceId"
                   ],
                   "targetFields": [
-                    "id"
+                    "id",
+                    "workspaceId"
                   ]
                 },
                 "to": {
@@ -676,10 +721,12 @@
                 "nullable": false,
                 "on": {
                   "localFields": [
-                    "tagId"
+                    "tagId",
+                    "workspaceId"
                   ],
                   "targetFields": [
-                    "id"
+                    "id",
+                    "workspaceId"
                   ]
                 },
                 "to": {
@@ -701,6 +748,9 @@
                 },
                 "tagId": {
                   "column": "tagId"
+                },
+                "workspaceId": {
+                  "column": "workspaceId"
                 }
               },
               "namespaceId": "public",
@@ -781,6 +831,23 @@
                   ],
                   "targetFields": [
                     "collectionId"
+                  ]
+                },
+                "to": {
+                  "model": "Bookmark",
+                  "namespace": "public"
+                }
+              },
+              "scopedBookmarks": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id",
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "collectionId",
+                    "workspaceId"
                   ]
                 },
                 "to": {
@@ -1075,10 +1142,12 @@
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
-                    "id"
+                    "id",
+                    "workspaceId"
                   ],
                   "targetFields": [
-                    "noteId"
+                    "noteId",
+                    "workspaceId"
                   ]
                 },
                 "to": {
@@ -1190,10 +1259,12 @@
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
-                    "id"
+                    "id",
+                    "workspaceId"
                   ],
                   "targetFields": [
-                    "tagId"
+                    "tagId",
+                    "workspaceId"
                   ]
                 },
                 "to": {
@@ -2029,6 +2100,27 @@
                     "namespaceId": "public",
                     "tableName": "Collection"
                   }
+                },
+                {
+                  "index": {
+                    "name": "Bookmark_collectionId_workspaceId_idx_b77573d3"
+                  },
+                  "source": {
+                    "columns": [
+                      "collectionId",
+                      "workspaceId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Bookmark"
+                  },
+                  "target": {
+                    "columns": [
+                      "id",
+                      "workspaceId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Collection"
+                  }
                 }
               ],
               "indexes": [
@@ -2038,6 +2130,15 @@
                   ],
                   "name": "Bookmark_collectionId_idx_b344fc1a",
                   "prefix": "Bookmark_collectionId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "collectionId",
+                    "workspaceId"
+                  ],
+                  "name": "Bookmark_collectionId_workspaceId_idx_b77573d3",
+                  "prefix": "Bookmark_collectionId_workspaceId_idx",
                   "unique": false
                 },
                 {
@@ -2129,6 +2230,12 @@
               "uniques": [
                 {
                   "columns": [
+                    "id",
+                    "workspaceId"
+                  ]
+                },
+                {
+                  "columns": [
                     "workspaceId",
                     "normalizedUrl"
                   ]
@@ -2163,24 +2270,31 @@
                   "codecId": "pg/uuid@1",
                   "dataType": "pg/uuid",
                   "nullable": false
+                },
+                "workspaceId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
                 }
               },
               "foreignKeys": [
                 {
                   "index": {
-                    "name": "BookmarkNote_bookmarkId_idx_1962ac1f"
+                    "name": "BookmarkNote_bookmarkId_workspaceId_idx_410a4d97"
                   },
                   "onDelete": "cascade",
                   "source": {
                     "columns": [
-                      "bookmarkId"
+                      "bookmarkId",
+                      "workspaceId"
                     ],
                     "namespaceId": "public",
                     "tableName": "BookmarkNote"
                   },
                   "target": {
                     "columns": [
-                      "id"
+                      "id",
+                      "workspaceId"
                     ],
                     "namespaceId": "public",
                     "tableName": "Bookmark"
@@ -2188,19 +2302,21 @@
                 },
                 {
                   "index": {
-                    "name": "BookmarkNote_noteId_idx_0612c5b1"
+                    "name": "BookmarkNote_noteId_workspaceId_idx_27e13d70"
                   },
                   "onDelete": "cascade",
                   "source": {
                     "columns": [
-                      "noteId"
+                      "noteId",
+                      "workspaceId"
                     ],
                     "namespaceId": "public",
                     "tableName": "BookmarkNote"
                   },
                   "target": {
                     "columns": [
-                      "id"
+                      "id",
+                      "workspaceId"
                     ],
                     "namespaceId": "public",
                     "tableName": "Note"
@@ -2218,10 +2334,28 @@
                 },
                 {
                   "columns": [
+                    "bookmarkId",
+                    "workspaceId"
+                  ],
+                  "name": "BookmarkNote_bookmarkId_workspaceId_idx_410a4d97",
+                  "prefix": "BookmarkNote_bookmarkId_workspaceId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "noteId"
                   ],
                   "name": "BookmarkNote_noteId_idx_0612c5b1",
                   "prefix": "BookmarkNote_noteId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "noteId",
+                    "workspaceId"
+                  ],
+                  "name": "BookmarkNote_noteId_workspaceId_idx_27e13d70",
+                  "prefix": "BookmarkNote_noteId_workspaceId_idx",
                   "unique": false
                 }
               ],
@@ -2267,24 +2401,31 @@
                   "codecId": "pg/uuid@1",
                   "dataType": "pg/uuid",
                   "nullable": false
+                },
+                "workspaceId": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
                 }
               },
               "foreignKeys": [
                 {
                   "index": {
-                    "name": "BookmarkTag_bookmarkId_idx_1962ac1f"
+                    "name": "BookmarkTag_bookmarkId_workspaceId_idx_410a4d97"
                   },
                   "onDelete": "cascade",
                   "source": {
                     "columns": [
-                      "bookmarkId"
+                      "bookmarkId",
+                      "workspaceId"
                     ],
                     "namespaceId": "public",
                     "tableName": "BookmarkTag"
                   },
                   "target": {
                     "columns": [
-                      "id"
+                      "id",
+                      "workspaceId"
                     ],
                     "namespaceId": "public",
                     "tableName": "Bookmark"
@@ -2292,19 +2433,21 @@
                 },
                 {
                   "index": {
-                    "name": "BookmarkTag_tagId_idx_86854244"
+                    "name": "BookmarkTag_tagId_workspaceId_idx_5a3677fa"
                   },
                   "onDelete": "cascade",
                   "source": {
                     "columns": [
-                      "tagId"
+                      "tagId",
+                      "workspaceId"
                     ],
                     "namespaceId": "public",
                     "tableName": "BookmarkTag"
                   },
                   "target": {
                     "columns": [
-                      "id"
+                      "id",
+                      "workspaceId"
                     ],
                     "namespaceId": "public",
                     "tableName": "Tag"
@@ -2322,10 +2465,28 @@
                 },
                 {
                   "columns": [
+                    "bookmarkId",
+                    "workspaceId"
+                  ],
+                  "name": "BookmarkTag_bookmarkId_workspaceId_idx_410a4d97",
+                  "prefix": "BookmarkTag_bookmarkId_workspaceId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "tagId"
                   ],
                   "name": "BookmarkTag_tagId_idx_86854244",
                   "prefix": "BookmarkTag_tagId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "tagId",
+                    "workspaceId"
+                  ],
+                  "name": "BookmarkTag_tagId_workspaceId_idx_5a3677fa",
+                  "prefix": "BookmarkTag_tagId_workspaceId_idx",
                   "unique": false
                 }
               ],
@@ -2792,7 +2953,14 @@
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "id",
+                    "workspaceId"
+                  ]
+                }
+              ]
             },
             "Tag": {
               "columns": {
@@ -2905,6 +3073,12 @@
                 ]
               },
               "uniques": [
+                {
+                  "columns": [
+                    "id",
+                    "workspaceId"
+                  ]
+                },
                 {
                   "columns": [
                     "workspaceId",
@@ -3290,7 +3464,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "fd7495ee8cb22bc644a8fd176acf8d7666fec642e35e3cb880d79e2569a22c52"
+    "storageHash": "5927a0bff08131ada7dcff7915c950a3959d0df66da25df52e99631fc4ddf9b8"
   },
   "execution": {
     "executionHash": "a115f47c0d3558910ba2d7a23dbc32aebd8cff39c2a3f03931c0969923a8859e",

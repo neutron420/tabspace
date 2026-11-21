@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'fd7495ee8cb22bc644a8fd176acf8d7666fec642e35e3cb880d79e2569a22c52'>;
+  StorageHashBase<'5927a0bff08131ada7dcff7915c950a3959d0df66da25df52e99631fc4ddf9b8'>;
 export type ExecutionHash =
   ExecutionHashBase<'a115f47c0d3558910ba2d7a23dbc32aebd8cff39c2a3f03931c0969923a8859e'>;
 export type ProfileHash =
@@ -447,15 +447,17 @@ export namespace Models {
     workspaceId: FieldOutputTypes['public']['Bookmark']['workspaceId'];
     collection: public_Collection | null;
     notes: public_BookmarkNote[];
+    scopedCollection: public_Collection | null;
     tags: public_BookmarkTag[];
     workspace: public_Workspace;
-    readonly [RelationKeys]?: 'collection' | 'notes' | 'tags' | 'workspace';
+    readonly [RelationKeys]?: 'collection' | 'notes' | 'scopedCollection' | 'tags' | 'workspace';
   };
   export type public_BookmarkNote = {
     bookmarkId: FieldOutputTypes['public']['BookmarkNote']['bookmarkId'];
     createdAt: FieldOutputTypes['public']['BookmarkNote']['createdAt'];
     id: FieldOutputTypes['public']['BookmarkNote']['id'];
     noteId: FieldOutputTypes['public']['BookmarkNote']['noteId'];
+    workspaceId: FieldOutputTypes['public']['BookmarkNote']['workspaceId'];
     bookmark: public_Bookmark;
     note: public_Note;
     readonly [RelationKeys]?: 'bookmark' | 'note';
@@ -465,6 +467,7 @@ export namespace Models {
     createdAt: FieldOutputTypes['public']['BookmarkTag']['createdAt'];
     id: FieldOutputTypes['public']['BookmarkTag']['id'];
     tagId: FieldOutputTypes['public']['BookmarkTag']['tagId'];
+    workspaceId: FieldOutputTypes['public']['BookmarkTag']['workspaceId'];
     bookmark: public_Bookmark;
     tag: public_Tag;
     readonly [RelationKeys]?: 'bookmark' | 'tag';
@@ -479,8 +482,9 @@ export namespace Models {
     updatedAt: FieldOutputTypes['public']['Collection']['updatedAt'];
     workspaceId: FieldOutputTypes['public']['Collection']['workspaceId'];
     bookmarks: public_Bookmark[];
+    scopedBookmarks: public_Bookmark[];
     workspace: public_Workspace;
-    readonly [RelationKeys]?: 'bookmarks' | 'workspace';
+    readonly [RelationKeys]?: 'bookmarks' | 'scopedBookmarks' | 'workspace';
   };
   export type public_ExtensionCredential = {
     createdAt: FieldOutputTypes['public']['ExtensionCredential']['createdAt'];
@@ -824,12 +828,21 @@ type ContractBase = Omit<
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['workspaceId', 'normalizedUrl'] }];
+              uniques: readonly [
+                { readonly columns: readonly ['id', 'workspaceId'] },
+                { readonly columns: readonly ['workspaceId', 'normalizedUrl'] },
+              ];
               indexes: readonly [
                 {
                   readonly name: 'Bookmark_collectionId_idx_b344fc1a';
                   readonly prefix: 'Bookmark_collectionId_idx';
                   readonly columns: readonly ['collectionId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Bookmark_collectionId_workspaceId_idx_b77573d3';
+                  readonly prefix: 'Bookmark_collectionId_workspaceId_idx';
+                  readonly columns: readonly ['collectionId', 'workspaceId'];
                   readonly unique: false;
                 },
                 {
@@ -908,6 +921,18 @@ type ContractBase = Omit<
                     readonly columns: readonly ['id'];
                   };
                 },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Bookmark';
+                    readonly columns: readonly ['collectionId', 'workspaceId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Collection';
+                    readonly columns: readonly ['id', 'workspaceId'];
+                  };
+                },
               ];
             };
             readonly BookmarkNote: {
@@ -938,6 +963,12 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly many: false;
                 };
+                readonly workspaceId: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [{ readonly columns: readonly ['bookmarkId', 'noteId'] }];
@@ -949,9 +980,21 @@ type ContractBase = Omit<
                   readonly unique: false;
                 },
                 {
+                  readonly name: 'BookmarkNote_bookmarkId_workspaceId_idx_410a4d97';
+                  readonly prefix: 'BookmarkNote_bookmarkId_workspaceId_idx';
+                  readonly columns: readonly ['bookmarkId', 'workspaceId'];
+                  readonly unique: false;
+                },
+                {
                   readonly name: 'BookmarkNote_noteId_idx_0612c5b1';
                   readonly prefix: 'BookmarkNote_noteId_idx';
                   readonly columns: readonly ['noteId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'BookmarkNote_noteId_workspaceId_idx_27e13d70';
+                  readonly prefix: 'BookmarkNote_noteId_workspaceId_idx';
+                  readonly columns: readonly ['noteId', 'workspaceId'];
                   readonly unique: false;
                 },
               ];
@@ -960,24 +1003,24 @@ type ContractBase = Omit<
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'BookmarkNote';
-                    readonly columns: readonly ['bookmarkId'];
+                    readonly columns: readonly ['bookmarkId', 'workspaceId'];
                   };
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'Bookmark';
-                    readonly columns: readonly ['id'];
+                    readonly columns: readonly ['id', 'workspaceId'];
                   };
                 },
                 {
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'BookmarkNote';
-                    readonly columns: readonly ['noteId'];
+                    readonly columns: readonly ['noteId', 'workspaceId'];
                   };
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'Note';
-                    readonly columns: readonly ['id'];
+                    readonly columns: readonly ['id', 'workspaceId'];
                   };
                 },
               ];
@@ -1010,6 +1053,12 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly many: false;
                 };
+                readonly workspaceId: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [{ readonly columns: readonly ['bookmarkId', 'tagId'] }];
@@ -1021,9 +1070,21 @@ type ContractBase = Omit<
                   readonly unique: false;
                 },
                 {
+                  readonly name: 'BookmarkTag_bookmarkId_workspaceId_idx_410a4d97';
+                  readonly prefix: 'BookmarkTag_bookmarkId_workspaceId_idx';
+                  readonly columns: readonly ['bookmarkId', 'workspaceId'];
+                  readonly unique: false;
+                },
+                {
                   readonly name: 'BookmarkTag_tagId_idx_86854244';
                   readonly prefix: 'BookmarkTag_tagId_idx';
                   readonly columns: readonly ['tagId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'BookmarkTag_tagId_workspaceId_idx_5a3677fa';
+                  readonly prefix: 'BookmarkTag_tagId_workspaceId_idx';
+                  readonly columns: readonly ['tagId', 'workspaceId'];
                   readonly unique: false;
                 },
               ];
@@ -1032,24 +1093,24 @@ type ContractBase = Omit<
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'BookmarkTag';
-                    readonly columns: readonly ['bookmarkId'];
+                    readonly columns: readonly ['bookmarkId', 'workspaceId'];
                   };
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'Bookmark';
-                    readonly columns: readonly ['id'];
+                    readonly columns: readonly ['id', 'workspaceId'];
                   };
                 },
                 {
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'BookmarkTag';
-                    readonly columns: readonly ['tagId'];
+                    readonly columns: readonly ['tagId', 'workspaceId'];
                   };
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'Tag';
-                    readonly columns: readonly ['id'];
+                    readonly columns: readonly ['id', 'workspaceId'];
                   };
                 },
               ];
@@ -1349,7 +1410,7 @@ type ContractBase = Omit<
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
+              uniques: readonly [{ readonly columns: readonly ['id', 'workspaceId'] }];
               indexes: readonly [
                 {
                   readonly name: 'Note_workspaceId_idx_ba65f874';
@@ -1440,7 +1501,10 @@ type ContractBase = Omit<
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['workspaceId', 'normalizedName'] }];
+              uniques: readonly [
+                { readonly columns: readonly ['id', 'workspaceId'] },
+                { readonly columns: readonly ['workspaceId', 'normalizedName'] },
+              ];
               indexes: readonly [
                 {
                   readonly name: 'Tag_workspaceId_idx_ba65f874';
@@ -1963,8 +2027,20 @@ type ContractBase = Omit<
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['bookmarkId'];
+                  readonly localFields: readonly ['id', 'workspaceId'];
+                  readonly targetFields: readonly ['bookmarkId', 'workspaceId'];
+                };
+              };
+              readonly scopedCollection: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Collection';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['collectionId', 'workspaceId'];
+                  readonly targetFields: readonly ['id', 'workspaceId'];
                 };
               };
               readonly tags: {
@@ -1974,8 +2050,8 @@ type ContractBase = Omit<
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['bookmarkId'];
+                  readonly localFields: readonly ['id', 'workspaceId'];
+                  readonly targetFields: readonly ['bookmarkId', 'workspaceId'];
                 };
               };
               readonly workspace: {
@@ -2034,6 +2110,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
               };
+              readonly workspaceId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
             };
             readonly relations: {
               readonly bookmark: {
@@ -2044,8 +2124,8 @@ type ContractBase = Omit<
                 readonly cardinality: 'N:1';
                 readonly nullable: false;
                 readonly on: {
-                  readonly localFields: readonly ['bookmarkId'];
-                  readonly targetFields: readonly ['id'];
+                  readonly localFields: readonly ['bookmarkId', 'workspaceId'];
+                  readonly targetFields: readonly ['id', 'workspaceId'];
                 };
               };
               readonly note: {
@@ -2053,8 +2133,8 @@ type ContractBase = Omit<
                 readonly cardinality: 'N:1';
                 readonly nullable: false;
                 readonly on: {
-                  readonly localFields: readonly ['noteId'];
-                  readonly targetFields: readonly ['id'];
+                  readonly localFields: readonly ['noteId', 'workspaceId'];
+                  readonly targetFields: readonly ['id', 'workspaceId'];
                 };
               };
             };
@@ -2066,6 +2146,7 @@ type ContractBase = Omit<
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly id: { readonly column: 'id' };
                 readonly noteId: { readonly column: 'noteId' };
+                readonly workspaceId: { readonly column: 'workspaceId' };
               };
             };
           };
@@ -2091,6 +2172,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
               };
+              readonly workspaceId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
             };
             readonly relations: {
               readonly bookmark: {
@@ -2101,8 +2186,8 @@ type ContractBase = Omit<
                 readonly cardinality: 'N:1';
                 readonly nullable: false;
                 readonly on: {
-                  readonly localFields: readonly ['bookmarkId'];
-                  readonly targetFields: readonly ['id'];
+                  readonly localFields: readonly ['bookmarkId', 'workspaceId'];
+                  readonly targetFields: readonly ['id', 'workspaceId'];
                 };
               };
               readonly tag: {
@@ -2110,8 +2195,8 @@ type ContractBase = Omit<
                 readonly cardinality: 'N:1';
                 readonly nullable: false;
                 readonly on: {
-                  readonly localFields: readonly ['tagId'];
-                  readonly targetFields: readonly ['id'];
+                  readonly localFields: readonly ['tagId', 'workspaceId'];
+                  readonly targetFields: readonly ['id', 'workspaceId'];
                 };
               };
             };
@@ -2123,6 +2208,7 @@ type ContractBase = Omit<
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly id: { readonly column: 'id' };
                 readonly tagId: { readonly column: 'tagId' };
+                readonly workspaceId: { readonly column: 'workspaceId' };
               };
             };
           };
@@ -2179,6 +2265,17 @@ type ContractBase = Omit<
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['collectionId'];
+                };
+              };
+              readonly scopedBookmarks: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Bookmark';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id', 'workspaceId'];
+                  readonly targetFields: readonly ['collectionId', 'workspaceId'];
                 };
               };
               readonly workspace: {
@@ -2368,8 +2465,8 @@ type ContractBase = Omit<
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['noteId'];
+                  readonly localFields: readonly ['id', 'workspaceId'];
+                  readonly targetFields: readonly ['noteId', 'workspaceId'];
                 };
               };
               readonly workspace: {
@@ -2443,8 +2540,8 @@ type ContractBase = Omit<
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['tagId'];
+                  readonly localFields: readonly ['id', 'workspaceId'];
+                  readonly targetFields: readonly ['tagId', 'workspaceId'];
                 };
               };
               readonly workspace: {

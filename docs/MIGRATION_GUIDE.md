@@ -19,10 +19,10 @@ This document details the database migration strategy, execution workflows, and 
 In `.env`:
 ```env
 # Neon Pooled Connection (Used by application runtime in Route Handlers)
-DATABASE_URL="postgresql://neondb_owner:npg_cgVXM7Zmi3RA@ep-snowy-scene-bet3a5wf-pooler.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DATABASE_URL="postgresql://USER:PASSWORD@POOLER_HOST/DATABASE?sslmode=require"
 
 # Neon Direct Connection (Used by migrations and DDL operations)
-DIRECT_URL="postgresql://neondb_owner:npg_cgVXM7Zmi3RA@ep-snowy-scene-bet3a5wf.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DIRECT_URL="postgresql://USER:PASSWORD@DIRECT_HOST/DATABASE?sslmode=require"
 ```
 
 In `prisma.config.ts`:

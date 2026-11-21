@@ -102,7 +102,8 @@ model Collection {
   updatedAt   DateTime   @default(now()) @onCreate(now()) @onUpdate(now())
 
   workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  bookmarks   Bookmark[]
+  bookmarks   Bookmark[] @relation("CollectionBookmarks")
+  scopedBookmarks Bookmark[] @relation("ScopedCollection")
 
   @@unique([workspaceId, name])
   @@unique([id, workspaceId])
@@ -111,6 +112,7 @@ model Collection {
 }
 
 model Bookmark {
+  @@unique([id, workspaceId])
   id            Uuid           @id @onCreate(uuid(7))
   workspaceId   Uuid
   collectionId  Uuid?
@@ -127,7 +129,8 @@ model Bookmark {
   updatedAt     DateTime       @default(now()) @onCreate(now()) @onUpdate(now())
 
   workspace     Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  collection    Collection?    @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  collection    Collection?    @relation("CollectionBookmarks", fields: [collectionId], references: [id], onDelete: SetNull)
+  scopedCollection Collection? @relation("ScopedCollection", fields: [collectionId, workspaceId], references: [id, workspaceId], onDelete: NoAction)
   tags          BookmarkTag[]
   notes         BookmarkNote[]
 
@@ -141,6 +144,7 @@ model Bookmark {
 }
 
 model Tag {
+  @@unique([id, workspaceId])
   id             Uuid          @id @onCreate(uuid(7))
   workspaceId    Uuid
   name           String
@@ -157,13 +161,14 @@ model Tag {
 }
 
 model BookmarkTag {
+  workspaceId Uuid
   id         Uuid     @id @onCreate(uuid(7))
   bookmarkId Uuid
   tagId      Uuid
   createdAt  DateTime @default(now()) @onCreate(now())
 
-  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
-  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  bookmark   Bookmark @relation(fields: [bookmarkId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
 
   @@unique([bookmarkId, tagId])
   @@index([tagId])
@@ -171,6 +176,7 @@ model BookmarkTag {
 }
 
 model Note {
+  @@unique([id, workspaceId])
   id          Uuid           @id @onCreate(uuid(7))
   workspaceId Uuid
   title       String
@@ -189,13 +195,14 @@ model Note {
 }
 
 model BookmarkNote {
+  workspaceId Uuid
   id         Uuid     @id @onCreate(uuid(7))
   bookmarkId Uuid
   noteId     Uuid
   createdAt  DateTime @default(now()) @onCreate(now())
 
-  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
-  note       Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  bookmark   Bookmark @relation(fields: [bookmarkId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  note       Note     @relation(fields: [noteId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
 
   @@unique([bookmarkId, noteId])
   @@index([noteId])

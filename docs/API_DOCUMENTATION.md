@@ -34,6 +34,8 @@ All API routes are implemented as **Next.js 16 App Router Route Handlers** under
 
 ---
 
+After Firebase sign-in, call `POST /api/auth/sync` with the Firebase ID token. On later requests, set `X-Workspace-Id` to a workspace UUID to select it. Omitting the header selects the personal workspace first. An extension credential is always scoped to its issued workspace.
+
 ## 2. API Endpoints Catalog
 
 ### 2.1 Authentication & Profile
@@ -76,3 +78,10 @@ All API routes are implemented as **Next.js 16 App Router Route Handlers** under
 
 ### 2.8 Activities
 - `GET /api/activities`: Returns workspace audit log / recent activity feed.
+
+### 2.9 Extension credentials
+- `GET /api/extension-credentials`: Lists the caller's credentials in the selected workspace without token hashes.
+- `POST /api/extension-credentials`: Creates a credential from `name` and optional future `expiresAt`. Returns its bearer token once.
+- `DELETE /api/extension-credentials/[id]`: Revokes the caller's credential immediately.
+
+Management routes require a Firebase ID token. Extension tokens are limited to their issued workspace.
