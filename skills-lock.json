@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "skills": {
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "commit": "e4bb5d960d87126ff3b3a8af1a104b7db67560ba",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "83485963700bcf11d5bf78118facb301676b69d918fee2e45a95e7f1a2840f6c"
+    },
+    "stageshow": {
+      "source": "benjitaylor/skills",
+      "commit": "299140fafd08df55a9c234e610c3f64af3f45531",
+      "sourceType": "github",
+      "skillPath": "stageshow/SKILL.md",
+      "computedHash": "faaf72b41c206b98da5788093eb07fcdceb80dee90b5dc6dd921048196279474"
+    }
+  }
+}

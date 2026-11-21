@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "TabSpace",
   description: "Personal digital workspace and resource management platform",
+  icons: {
+    icon: "/tabspace-logo.jpg",
+    apple: "/tabspace-logo.jpg",
+  },
 };
 
 export default function RootLayout({
