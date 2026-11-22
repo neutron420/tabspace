@@ -272,3 +272,24 @@ export function TabSpaceLogo({
     />
   );
 }
+
+export function ChromeLogo({
+  className = "h-5 w-5",
+  color = "currentColor",
+}: {
+  className?: string;
+  color?: string;
+}) {
+  return (
+    <svg
+      role="img"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      fill={color}
+      aria-label="Google Chrome logo"
+    >
+      <path d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29L1.931 5.47zm13.303 3.822a5.45 5.45 0 0 1 2.221 4.708c0 3.011-2.444 5.455-5.455 5.455v7.9a12 12 0 0 0 12-12c0-.58-.041-1.15-.12-1.708H15.234zM12 8.182a3.818 3.818 0 1 0 0 7.636 3.818 3.818 0 0 0 0-7.636z" />
+    </svg>
+  );
+}
